@@ -38,9 +38,13 @@ h1{font-size:28px;margin:10px 0 4px}
 .nota{font-size:56px;font-weight:900;margin:6px 0}
 .cta{display:block;background:var(--acento);color:#111;text-decoration:none;font-weight:800;border-radius:12px;padding:14px;margin:16px 0 8px}
 .sec{display:block;width:100%;background:transparent;color:var(--texto);border:1.5px solid var(--borde);border-radius:12px;padding:12px;font:600 15px/1 inherit;cursor:pointer;margin-top:8px}
+body.grande{font-size:20px}body.grande h1{font-size:34px}body.grande .op{padding:16px}
+.herr{display:flex;justify-content:center;gap:8px;margin-top:10px}.mini{background:transparent;color:var(--suave);border:1px solid var(--borde);border-radius:999px;padding:6px 14px;font:600 14px/1 inherit;cursor:pointer}
+.leer{display:inline-block;margin-top:8px;color:var(--acento);font-weight:700}
 footer{color:var(--suave);font-size:13px;text-align:center;margin-top:22px}
 footer a{color:inherit}
 </style>
+<script data-goatcounter="https://notelacuelen.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <main>
@@ -48,6 +52,7 @@ footer a{color:inherit}
     <span class="marca">🛡 NO TE LA CUELEN</span>
     <h1>¿Te la cuelan?</h1>
     <p class="sub">10 mensajes como los que circulan en España. Elige qué harías.</p>
+    <div class="herr"><button class="mini" id="letra">🔍 Letra grande</button><a class="mini" href="/estafas" style="text-decoration:none">📚 Todas las estafas</a></div>
   </header>
   <div class="barra" aria-hidden="true"><i id="progreso"></i></div>
   <section class="tarjeta" id="juego" aria-live="polite"></section>
@@ -59,45 +64,76 @@ footer a{color:inherit}
 </main>
 <script>
 const CASOS = [
- {canal:"SMS · MiBanco", ini:"M", msg:"MiBanco: hemos bloqueado su tarjeta por un acceso inusual. Verifique su identidad aquí: <u>mibanco-seguridad.ejemplo</u>",
+ {slug:"sms-del-banco", canal:"SMS · MiBanco", ini:"M", msg:"MiBanco: hemos bloqueado su tarjeta por un acceso inusual. Verifique su identidad aquí: <u>mibanco-seguridad.ejemplo</u>",
   ops:["Pulso el enlace y verifico mis datos","Respondo al SMS para preguntar","No pulso: entro yo en la app del banco o llamo al número de mi tarjeta"], ok:2,
   senal:"Un SMS con enlace que te mete prisa para «verificar» tus datos.", regla:"Tu banco nunca te pide claves ni códigos por un enlace o por teléfono. Entra tú en la app."},
- {canal:"Wallapop · Comprador", ini:"C", msg:"¡Me lo quedo! Te he enviado una solicitud de Bizum para que te llegue el pago. Acéptala y listo 😊",
+ {slug:"bizum-aceptar-solicitud", canal:"Wallapop · Comprador", ini:"C", msg:"¡Me lo quedo! Te he enviado una solicitud de Bizum para que te llegue el pago. Acéptala y listo 😊",
   ops:["La acepto, así cobro antes","Rechazo: para recibir un Bizum no hay que aceptar nada","Le pido que me la mande otra vez"], ok:1,
   senal:"Una «solicitud» de Bizum es para PAGAR, no para cobrar.", regla:"Para recibir un Bizum no tienes que hacer nada: el dinero entra solo. Si te piden aceptar, rechaza."},
- {canal:"SMS · Paquetería", ini:"P", msg:"Su paquete está retenido en almacén. Abone 1,99 € de tasas en 24 h o será devuelto: <u>envio-retenido.ejemplo</u>",
+ {slug:"paquete-retenido", canal:"SMS · Paquetería", ini:"P", msg:"Su paquete está retenido en almacén. Abone 1,99 € de tasas en 24 h o será devuelto: <u>envio-retenido.ejemplo</u>",
   ops:["Pago, solo es 1,99 €","Si no espero nada, lo borro; si espero algo, lo compruebo en la web oficial con mi número de seguimiento","Le doy mis datos para que me lo reenvíen"], ok:1,
   senal:"Una cantidad pequeña para que no lo pienses: lo que quieren es tu tarjeta.", regla:"No pulses el enlace. Paga solo en la web o app oficial si de verdad hay algo pendiente."},
- {canal:"SMS · «DGT»", ini:"D", msg:"DGT: tiene una multa pendiente de pago. Evite el recargo abonándola hoy: <u>dgt-multas.ejemplo</u>",
+ {slug:"multa-dgt-sms", canal:"SMS · «DGT»", ini:"D", msg:"DGT: tiene una multa pendiente de pago. Evite el recargo abonándola hoy: <u>dgt-multas.ejemplo</u>",
   ops:["La pago ya para evitar el recargo","No pulso: lo compruebo yo en la sede oficial de la DGT, su app o mi ayuntamiento","Llamo al número que aparece en la web del enlace"], ok:1,
   senal:"La DGT no te pide pagar una multa desde un enlace en un SMS.", regla:"Compruébalo tú en la sede oficial de la DGT, en su app o en tu ayuntamiento."},
- {canal:"WhatsApp · Laura (amiga)", ini:"L", msg:"Ay perdona, te ha llegado un código de 6 cifras por error, era para mí. ¿Me lo pasas porfa? 🙏",
+ {slug:"codigo-whatsapp", canal:"WhatsApp · Laura (amiga)", ini:"L", msg:"Ay perdona, te ha llegado un código de 6 cifras por error, era para mí. ¿Me lo pasas porfa? 🙏",
   ops:["Se lo paso, es mi amiga","No se lo doy a nadie y la llamo a su número de siempre","Se lo paso pero le pido que me lo devuelva"], ok:1,
   senal:"Ese código sirve para abrir TU WhatsApp en otro móvil. Puede que la cuenta de tu amiga ya esté robada.", regla:"El código no se da a nadie. Activa la verificación en dos pasos con un PIN."},
- {canal:"WhatsApp · Número nuevo", ini:"?", msg:"Hola mamá, se me ha roto el móvil y este es mi número nuevo. Tengo que pagar una factura urgente hoy, ¿me haces una transferencia? Luego te lo devuelvo",
+ {slug:"hola-mama-whatsapp", canal:"WhatsApp · Número nuevo", ini:"?", msg:"Hola mamá, se me ha roto el móvil y este es mi número nuevo. Tengo que pagar una factura urgente hoy, ¿me haces una transferencia? Luego te lo devuelvo",
   ops:["Le hago la transferencia, es urgente","Le pido que me mande un audio","Antes de enviar nada, llamo a mi hijo a su número de siempre"], ok:2,
   senal:"Número nuevo + prisa + dinero. La voz se puede imitar, así que un audio no basta.", regla:"Llama al número de siempre. Si no contesta, pregunta a la familia. Nunca pagues con prisas."},
- {canal:"Llamada · «Seguridad del banco»", ini:"B", msg:"(Te llaman y sale el número de tu banco) «Estamos detectando cargos en su cuenta. Para protegerla, traspase su dinero a esta cuenta segura ahora mismo».",
+ {slug:"cuenta-segura-banco", canal:"Llamada · «Seguridad del banco»", ini:"B", msg:"(Te llaman y sale el número de tu banco) «Estamos detectando cargos en su cuenta. Para protegerla, traspase su dinero a esta cuenta segura ahora mismo».",
   ops:["Cuelgo y llamo yo al teléfono de mi tarjeta o de la app","Hago el traspaso: sale el número del banco","Les doy el código que me llega para cancelar los cargos"], ok:0,
   senal:"El número que ves se puede falsificar. Ningún banco te pide mover tu dinero a una «cuenta segura».", regla:"Cuelga, aunque salga su número. Ni traspasos ni códigos por teléfono."},
- {canal:"Llamada · «Tu hijo»", ini:"H", msg:"(Suena igualita que la voz de tu hijo) «Mamá, he tenido un accidente, necesito dinero YA. No se lo digas a papá».",
+ {slug:"voz-clonada-ia", canal:"Llamada · «Tu hijo»", ini:"H", msg:"(Suena igualita que la voz de tu hijo) «Mamá, he tenido un accidente, necesito dinero YA. No se lo digas a papá».",
   ops:["Envío el dinero, es su voz","Cuelgo y llamo yo a mi hijo a su número de siempre","Le pregunto si está bien y le pido el número de cuenta"], ok:1,
   senal:"Urgencia, secreto y una voz que puede estar clonada con IA a partir de unos segundos de audio.", regla:"Cuelga y llama tú al número de siempre. Acordad en familia una palabra clave."},
- {canal:"Instagram · Anuncio", ini:"T", msg:"🔥 LIQUIDACIÓN TOTAL: zapatillas de marca al 80 % de descuento. Solo hoy. Compra en <u>outlet-marcas.ejemplo</u>",
+ {slug:"tienda-online-falsa", canal:"Instagram · Anuncio", ini:"T", msg:"🔥 LIQUIDACIÓN TOTAL: zapatillas de marca al 80 % de descuento. Solo hoy. Compra en <u>outlet-marcas.ejemplo</u>",
   ops:["Compro rápido antes de que se acabe","Desconfío: reviso la dirección de la web, comparo precios y busco opiniones","Compro, pero con Bizum para ir más rápido"], ok:1,
   senal:"Precio demasiado bueno + «solo hoy» + una web que no es la oficial.", regla:"Si es demasiado barato, desconfía. Revisa la dirección y busca opiniones antes de pagar."},
- {canal:"WhatsApp · «Agencia de empleo»", ini:"E", msg:"¡Hola! Buscamos personas para dar «me gusta» a vídeos desde casa: 50 € al día. Para desbloquear tus ganancias, haz un primer depósito de 30 €.",
+ {slug:"empleo-dar-likes", canal:"WhatsApp · «Agencia de empleo»", ini:"E", msg:"¡Hola! Buscamos personas para dar «me gusta» a vídeos desde casa: 50 € al día. Para desbloquear tus ganancias, haz un primer depósito de 30 €.",
   ops:["Pruebo, solo son 30 €","Ningún trabajo te pide pagar para cobrar: bloqueo y denuncio","Pido que me paguen primero lo que llevo"], ok:1,
-  senal:"Dinero fácil por algo muy simple, y luego te piden pagar para «desbloquear».", regla:"Ningún trabajo de verdad te pide pagar para cobrar. Bloquea y denuncia."}
+  senal:"Dinero fácil por algo muy simple, y luego te piden pagar para «desbloquear».", regla:"Ningún trabajo de verdad te pide pagar para cobrar. Bloquea y denuncia."},
+ {slug:"tarjetas-regalo", canal:"Llamada · «Agencia Tributaria»", ini:"A", msg:"(Te llaman) «Tiene una deuda con Hacienda y hoy se ejecuta el embargo. Para evitarlo, compre tarjetas regalo de Google Play y díctenos los códigos».",
+  ops:["Compro las tarjetas y les dicto los códigos","Les mando una foto de las tarjetas, que es más seguro","Cuelgo: nadie de verdad cobra con tarjetas regalo"], ok:2,
+  senal:"Miedo (embargo), prisa y un pago imposible de rastrear.", regla:"Nadie de verdad te cobra una deuda con tarjetas regalo. Cuelga y nunca des el código ni una foto."},
+ {slug:"falsa-guardia-civil", canal:"Llamada · «Guardia Civil»", ini:"G", msg:"(Te llaman) «Le llamamos de la Guardia Civil: tiene una multa pendiente. Si la paga ahora por teléfono con su tarjeta, evita la sanción mayor».",
+  ops:["Doy los datos de mi tarjeta para pagarla","Cuelgo y, si tengo dudas, llamo yo al 062 o lo consulto en la sede oficial","Pido que me manden un enlace para pagar"], ok:1,
+  senal:"Una autoridad que te cobra por teléfono, con prisa.", regla:"Ninguna multa se paga por teléfono a quien te llama. Cuelga y comprueba tú."},
+ {slug:"qr-falso-parking", canal:"Parquímetro · Pegatina QR", ini:"Q", msg:"(Una pegatina en el parquímetro) «Paga más rápido aquí: escanea el QR» → abre <u>pago-parking.ejemplo</u> y pide tu tarjeta.",
+  ops:["Escaneo y pago, es más cómodo","Pago en la máquina o en la app oficial del ayuntamiento","Escaneo pero solo pongo el número de tarjeta"], ok:1,
+  senal:"Una pegatina pegada encima que lleva a una web que no es la oficial.", regla:"Paga en la máquina o en la app oficial. Desconfía de los QR pegados."},
+ {slug:"premio-falso", canal:"SMS · Número desconocido", ini:"N", msg:"¡Enhorabuena! Has sido seleccionado para recibir un regalo de Navidad 🎁 Solo pagas 2,95 € de envío: <u>premio-navidad.ejemplo</u>",
+  ops:["Pago el envío, es muy poco","Si no he participado en nada, no he ganado nada: lo borro","Pongo mis datos pero no la tarjeta"], ok:1,
+  senal:"Un premio de algo en lo que no participaste y un pago pequeño con tu tarjeta.", regla:"Si no has participado, no has ganado. Ningún premio pide tu tarjeta."},
+ {slug:"recogida-tarjeta", canal:"Llamada · «Seguridad del banco»", ini:"B", msg:"(Te llaman) «Han clonado su tarjeta. Dígame el PIN para anularla, métala en un sobre y se la daremos a nuestro mensajero, que va a su casa».",
+  ops:["Le doy el PIN y la tarjeta al mensajero","Cuelgo: ningún banco pide el PIN ni recoge tarjetas en casa","Le doy la tarjeta pero no el PIN"], ok:1,
+  senal:"Te piden el PIN y mandan a alguien a por la tarjeta.", regla:"Tu banco nunca te pide el PIN ni manda a nadie a por tu tarjeta. Llama tú al número de la tarjeta."},
+ {slug:"falso-tecnico", canal:"Llamada · «Servicio técnico»", ini:"S", msg:"(Te llaman sin que lo hayas pedido) «Su ordenador tiene un virus. Instale esta aplicación para que podamos arreglarlo en remoto».",
+  ops:["Instalo la app, me ayudan gratis","Cuelgo: nadie que me llame sin pedirlo debe hacerme instalar nada","Les dejo entrar pero miro lo que hacen"], ok:1,
+  senal:"Una llamada que no pediste y una app de acceso remoto.", regla:"Nadie que te llame sin que lo pidas debe hacerte instalar nada. Cuelga."},
+ {slug:"alquiler-vacacional-falso", canal:"Anuncio · Apartamento en la playa", ini:"A", msg:"Apartamento precioso, a mitad de precio. Hay mucha gente interesada: para reservarlo, haz hoy una transferencia de la fianza fuera de la plataforma.",
+  ops:["Transfiero rápido para no perderlo","Reservo solo dentro de la plataforma y desconfío del chollo con prisas","Pago por Bizum, que es más rápido"], ok:1,
+  senal:"Precio demasiado bueno, prisa y pago fuera de la plataforma.", regla:"Paga siempre dentro de la plataforma. Si te sacan de ella, desconfía."},
+ {slug:"inversion-famoso", canal:"Anuncio · «Famoso invierte»", ini:"F", msg:"(Un anuncio con la cara de un famoso) «Así gané dinero desde casa con esta plataforma. Empieza con 250 € y un asesor te guía».",
+  ops:["Me registro y dejo que el asesor me llame","Desconfío: ese famoso no lo anuncia y no invierto por un anuncio","Invierto solo un poco para probar"], ok:1,
+  senal:"Un famoso que nunca dijo eso y ganancias fáciles.", regla:"Ningún famoso te va a hacer rico en un anuncio. Antes de invertir, comprueba en la web de la CNMV si la entidad está autorizada."},
+ {slug:"llamada-perdida-extranjero", canal:"Llamada perdida · +XX XXX", ini:"?", msg:"Tienes una llamada perdida de un número extranjero que no conoces. Solo sonó un tono.",
+  ops:["La devuelvo por si es importante","No la devuelvo: si es importante, insistirán o escribirán","La devuelvo desde el fijo"], ok:1,
+  senal:"Un solo tono de un número extranjero: quieren que llames a un número de pago.", regla:"No devuelvas llamadas desconocidas del extranjero."},
+ {slug:"ong-falsa", canal:"SMS · Número desconocido", ini:"N", msg:"Esta Navidad ningún niño sin regalo. Dona ahora por Bizum al 6XX XXX XXX o aquí: <u>ayuda-navidad.ejemplo</u>",
+  ops:["Dono por Bizum, es por una buena causa","Si quiero donar, entro yo en la web oficial de la ONG","Dono con tarjeta en el enlace"], ok:1,
+  senal:"Una campaña que solo te deja pagar desde ese mensaje.", regla:"No dones desde un mensaje. Entra tú en la web o la app oficial de la ONG."}
 ];
-let i = 0, aciertos = 0;
+const TODOS = CASOS.slice(); let PARTIDA = []; let i = 0, aciertos = 0;
+function nueva(){ PARTIDA = TODOS.slice().sort(()=>Math.random()-0.5).slice(0,10); i = 0; aciertos = 0; }
 const $ = (s) => document.querySelector(s);
 function pintar(){
-  $("#progreso").style.width = (i / CASOS.length * 100) + "%";
-  if (i >= CASOS.length) return final();
-  const c = CASOS[i];
+  $("#progreso").style.width = (i / PARTIDA.length * 100) + "%";
+  if (i >= PARTIDA.length) return final();
+  const c = PARTIDA[i];
   $("#juego").innerHTML = `
-    <div class="canal"><span class="avatar">${c.ini}</span><span>${c.canal}</span><span style="margin-left:auto">${i+1}/${CASOS.length}</span></div>
+    <div class="canal"><span class="avatar">${c.ini}</span><span>${c.canal}</span><span style="margin-left:auto">${i+1}/${PARTIDA.length}</span></div>
     <div class="burbuja">${c.msg}</div>
     <p class="pregunta">¿Qué haces?</p>
     ${c.ops.map((o,k)=>[o,k]).sort(()=>Math.random()-0.5).map(([o,k])=>`<button class="op" data-k="${k}">${o}</button>`).join("")}
@@ -105,15 +141,15 @@ function pintar(){
   document.querySelectorAll(".op").forEach(b => b.addEventListener("click", () => responder(+b.dataset.k)));
 }
 function responder(k){
-  const c = CASOS[i], bien = k === c.ok;
+  const c = PARTIDA[i], bien = k === c.ok;
   if (bien) aciertos++;
   document.querySelectorAll(".op").forEach(b => { b.disabled = true; const n = +b.dataset.k;
     if (n === c.ok) b.classList.add("bien"); else if (n === k) b.classList.add("mal"); });
   $("#resp").innerHTML = `<div class="resp" style="border-color:var(${bien?"--verde":"--rojo"})">
     <h3>${bien ? "✅ ¡No te la cuelan!" : "❌ Te la han colado"}</h3>
     <p class="senal"><strong>La señal:</strong> ${c.senal}</p>
-    <p class="regla">La regla: ${c.regla}</p></div>
-    <button class="sig">${i+1 < CASOS.length ? "Siguiente mensaje →" : "Ver mi resultado"}</button>`;
+    <p class="regla">La regla: ${c.regla}</p><a class="leer" href="/${c.slug}">Leer el caso completo →</a></div>
+    <button class="sig">${i+1 < PARTIDA.length ? "Siguiente mensaje →" : "Ver mi resultado"}</button>`;
   $(".sig").addEventListener("click", () => { i++; pintar(); window.scrollTo({top:0,behavior:"smooth"}); });
 }
 function final(){
@@ -122,17 +158,33 @@ function final(){
   $("#juego").innerHTML = `<div class="final">
     <p class="sub">Tu resultado</p><div class="nota">${aciertos}/10</div><p>${frase}</p>
     <a class="cta" href="https://payhip.com/b/OPqoG">📘 Descarga gratis la guía «Las 10 estafas más comunes en España»</a>
-    <button class="sec" id="compartir">📲 Pásaselo a tu familia</button>
+    <button class="sec" id="compartir">📲 Pásaselo a tu familia (con tu resultado)</button>
     <button class="sec" id="otra">↺ Volver a empezar</button></div>`;
   $("#compartir").addEventListener("click", compartir);
-  $("#otra").addEventListener("click", () => { i = 0; aciertos = 0; pintar(); });
+  $("#otra").addEventListener("click", () => { nueva(); pintar(); });
+}
+function imagen(){
+  const c = document.createElement("canvas"); c.width = 1080; c.height = 1080; const x = c.getContext("2d");
+  x.fillStyle = "#0f1115"; x.fillRect(0,0,1080,1080);
+  x.fillStyle = "#ff453a"; x.font = "800 40px sans-serif"; x.textAlign = "center"; x.fillText("🛡 NO TE LA CUELEN", 540, 150);
+  x.fillStyle = "#f2f4f8"; x.font = "800 80px sans-serif"; x.fillText("¿Te la cuelan?", 540, 300);
+  x.fillStyle = "#ffd60a"; x.font = "900 260px sans-serif"; x.fillText(`${aciertos}/10`, 540, 610);
+  x.fillStyle = "#f2f4f8"; x.font = "600 46px sans-serif"; x.fillText("He hecho el test de estafas.", 540, 760); x.fillText("¿Sacas más que yo?", 540, 830);
+  x.fillStyle = "#a9b0bf"; x.font = "600 40px sans-serif"; x.fillText("notelacuelen.github.io", 540, 960);
+  return new Promise(r => c.toBlob(r, "image/png"));
 }
 async function compartir(){
   const datos = { title: "¿Te la cuelan?", text: `He sacado ${aciertos}/10 en el simulador de estafas de No te la cuelen. ¿Y tú?`, url: location.href };
-  try { if (navigator.share) { await navigator.share(datos); return; } } catch (e) { return; }
+  try {
+    const b = await imagen(); const f = new File([b], "te-la-cuelan.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ ...datos, files: [f] }); return; }
+    if (navigator.share) { await navigator.share(datos); return; }
+  } catch (e) { return; }
   try { await navigator.clipboard.writeText(datos.text + " " + datos.url); $("#compartir").textContent = "✅ Enlace copiado"; } catch (e) {}
 }
-pintar();
+try { if (localStorage.getItem("letra") === "1") document.body.classList.add("grande"); } catch (e) {}
+document.getElementById("letra").addEventListener("click", () => { const g = document.body.classList.toggle("grande"); try { localStorage.setItem("letra", g ? "1" : "0"); } catch (e) {} });
+nueva(); pintar();
 </script>
 </body>
 </html>
