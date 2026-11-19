@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Te la cuelan?</title>
+<meta name="description" content="Simulador gratuito de No te la cuelen: 10 mensajes de estafas que circulan en España. ¿Sabrías qué hacer?">
+<style>
+:root{--fondo:#0f1115;--panel:#181b22;--borde:#2a2f3a;--texto:#f2f4f8;--suave:#a9b0bf;--rojo:#ff453a;--verde:#30d158;--amarillo:#ffd60a;--burbuja:#232836;--acento:#ffd60a}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--fondo:#f4f5f7;--panel:#ffffff;--borde:#dde1e8;--texto:#14171f;--suave:#5b6474;--burbuja:#eef0f4;--acento:#b38f00}}
+:root[data-theme="light"]{--fondo:#f4f5f7;--panel:#ffffff;--borde:#dde1e8;--texto:#14171f;--suave:#5b6474;--burbuja:#eef0f4;--acento:#b38f00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--texto);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+header{text-align:center;margin-bottom:18px}
+.marca{display:inline-block;font-weight:800;letter-spacing:.12em;font-size:12px;color:var(--rojo);border:1px solid var(--borde);border-radius:999px;padding:4px 12px}
+h1{font-size:28px;margin:10px 0 4px}
+.sub{color:var(--suave);margin:0}
+.barra{height:6px;background:var(--borde);border-radius:6px;overflow:hidden;margin:16px 0}
+.barra>i{display:block;height:100%;background:var(--acento);width:0;transition:width .3s}
+.tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:18px;padding:18px}
+.canal{display:flex;align-items:center;gap:10px;color:var(--suave);font-size:14px;margin-bottom:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--borde);display:grid;place-items:center;font-weight:700;color:var(--texto)}
+.burbuja{background:var(--burbuja);border-radius:16px 16px 16px 4px;padding:12px 14px;margin-bottom:16px;white-space:pre-line}
+.burbuja u{color:#4da3ff}
+.pregunta{font-weight:700;margin:4px 0 10px}
+.op{display:block;width:100%;text-align:left;background:transparent;color:var(--texto);border:1.5px solid var(--borde);border-radius:12px;padding:12px 14px;margin:8px 0;font:inherit;cursor:pointer}
+.op:hover:not(:disabled){border-color:var(--acento)}
+.op:disabled{cursor:default;opacity:.75}
+.op.bien{border-color:var(--verde);opacity:1}
+.op.mal{border-color:var(--rojo);opacity:1}
+.resp{margin-top:14px;border-radius:12px;padding:14px;border:1px solid var(--borde)}
+.resp h3{margin:0 0 6px;font-size:18px}
+.resp .senal{margin:6px 0}
+.resp .regla{margin:6px 0 0;font-weight:600}
+.sig{margin-top:14px;width:100%;background:var(--acento);color:#111;border:0;border-radius:12px;padding:13px;font:700 16px/1 inherit;cursor:pointer}
+.final{text-align:center}
+.nota{font-size:56px;font-weight:900;margin:6px 0}
+.cta{display:block;background:var(--acento);color:#111;text-decoration:none;font-weight:800;border-radius:12px;padding:14px;margin:16px 0 8px}
+.sec{display:block;width:100%;background:transparent;color:var(--texto);border:1.5px solid var(--borde);border-radius:12px;padding:12px;font:600 15px/1 inherit;cursor:pointer;margin-top:8px}
+footer{color:var(--suave);font-size:13px;text-align:center;margin-top:22px}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="marca">🛡 NO TE LA CUELEN</span>
+    <h1>¿Te la cuelan?</h1>
+    <p class="sub">10 mensajes como los que circulan en España. Elige qué harías.</p>
+  </header>
+  <div class="barra" aria-hidden="true"><i id="progreso"></i></div>
+  <section class="tarjeta" id="juego" aria-live="polite"></section>
+  <footer>
+    Mensajes inventados con fines de prevención (las webs .ejemplo no existen).<br>
+    ¿Te ha pasado? Llama a tu banco, denuncia y pide ayuda gratis en el <strong>017</strong> (INCIBE).<br>
+    <a href="https://payhip.com/b/OPqoG">Guía gratis: las 10 estafas más comunes en España</a>
+  </footer>
+</main>
+<script>
+const CASOS = [
+ {canal:"SMS · MiBanco", ini:"M", msg:"MiBanco: hemos bloqueado su tarjeta por un acceso inusual. Verifique su identidad aquí: <u>mibanco-seguridad.ejemplo</u>",
+  ops:["Pulso el enlace y verifico mis datos","Respondo al SMS para preguntar","No pulso: entro yo en la app del banco o llamo al número de mi tarjeta"], ok:2,
+  senal:"Un SMS con enlace que te mete prisa para «verificar» tus datos.", regla:"Tu banco nunca te pide claves ni códigos por un enlace o por teléfono. Entra tú en la app."},
+ {canal:"Wallapop · Comprador", ini:"C", msg:"¡Me lo quedo! Te he enviado una solicitud de Bizum para que te llegue el pago. Acéptala y listo 😊",
+  ops:["La acepto, así cobro antes","Rechazo: para recibir un Bizum no hay que aceptar nada","Le pido que me la mande otra vez"], ok:1,
+  senal:"Una «solicitud» de Bizum es para PAGAR, no para cobrar.", regla:"Para recibir un Bizum no tienes que hacer nada: el dinero entra solo. Si te piden aceptar, rechaza."},
+ {canal:"SMS · Paquetería", ini:"P", msg:"Su paquete está retenido en almacén. Abone 1,99 € de tasas en 24 h o será devuelto: <u>envio-retenido.ejemplo</u>",
+  ops:["Pago, solo es 1,99 €","Si no espero nada, lo borro; si espero algo, lo compruebo en la web oficial con mi número de seguimiento","Le doy mis datos para que me lo reenvíen"], ok:1,
+  senal:"Una cantidad pequeña para que no lo pienses: lo que quieren es tu tarjeta.", regla:"No pulses el enlace. Paga solo en la web o app oficial si de verdad hay algo pendiente."},
+ {canal:"SMS · «DGT»", ini:"D", msg:"DGT: tiene una multa pendiente de pago. Evite el recargo abonándola hoy: <u>dgt-multas.ejemplo</u>",
+  ops:["La pago ya para evitar el recargo","No pulso: lo compruebo yo en la sede oficial de la DGT, su app o mi ayuntamiento","Llamo al número que aparece en la web del enlace"], ok:1,
+  senal:"La DGT no te pide pagar una multa desde un enlace en un SMS.", regla:"Compruébalo tú en la sede oficial de la DGT, en su app o en tu ayuntamiento."},
+ {canal:"WhatsApp · Laura (amiga)", ini:"L", msg:"Ay perdona, te ha llegado un código de 6 cifras por error, era para mí. ¿Me lo pasas porfa? 🙏",
+  ops:["Se lo paso, es mi amiga","No se lo doy a nadie y la llamo a su número de siempre","Se lo paso pero le pido que me lo devuelva"], ok:1,
+  senal:"Ese código sirve para abrir TU WhatsApp en otro móvil. Puede que la cuenta de tu amiga ya esté robada.", regla:"El código no se da a nadie. Activa la verificación en dos pasos con un PIN."},
+ {canal:"WhatsApp · Número nuevo", ini:"?", msg:"Hola mamá, se me ha roto el móvil y este es mi número nuevo. Tengo que pagar una factura urgente hoy, ¿me haces una transferencia? Luego te lo devuelvo",
+  ops:["Le hago la transferencia, es urgente","Le pido que me mande un audio","Antes de enviar nada, llamo a mi hijo a su número de siempre"], ok:2,
+  senal:"Número nuevo + prisa + dinero. La voz se puede imitar, así que un audio no basta.", regla:"Llama al número de siempre. Si no contesta, pregunta a la familia. Nunca pagues con prisas."},
+ {canal:"Llamada · «Seguridad del banco»", ini:"B", msg:"(Te llaman y sale el número de tu banco) «Estamos detectando cargos en su cuenta. Para protegerla, traspase su dinero a esta cuenta segura ahora mismo».",
+  ops:["Cuelgo y llamo yo al teléfono de mi tarjeta o de la app","Hago el traspaso: sale el número del banco","Les doy el código que me llega para cancelar los cargos"], ok:0,
+  senal:"El número que ves se puede falsificar. Ningún banco te pide mover tu dinero a una «cuenta segura».", regla:"Cuelga, aunque salga su número. Ni traspasos ni códigos por teléfono."},
+ {canal:"Llamada · «Tu hijo»", ini:"H", msg:"(Suena igualita que la voz de tu hijo) «Mamá, he tenido un accidente, necesito dinero YA. No se lo digas a papá».",
+  ops:["Envío el dinero, es su voz","Cuelgo y llamo yo a mi hijo a su número de siempre","Le pregunto si está bien y le pido el número de cuenta"], ok:1,
+  senal:"Urgencia, secreto y una voz que puede estar clonada con IA a partir de unos segundos de audio.", regla:"Cuelga y llama tú al número de siempre. Acordad en familia una palabra clave."},
+ {canal:"Instagram · Anuncio", ini:"T", msg:"🔥 LIQUIDACIÓN TOTAL: zapatillas de marca al 80 % de descuento. Solo hoy. Compra en <u>outlet-marcas.ejemplo</u>",
+  ops:["Compro rápido antes de que se acabe","Desconfío: reviso la dirección de la web, comparo precios y busco opiniones","Compro, pero con Bizum para ir más rápido"], ok:1,
+  senal:"Precio demasiado bueno + «solo hoy» + una web que no es la oficial.", regla:"Si es demasiado barato, desconfía. Revisa la dirección y busca opiniones antes de pagar."},
+ {canal:"WhatsApp · «Agencia de empleo»", ini:"E", msg:"¡Hola! Buscamos personas para dar «me gusta» a vídeos desde casa: 50 € al día. Para desbloquear tus ganancias, haz un primer depósito de 30 €.",
+  ops:["Pruebo, solo son 30 €","Ningún trabajo te pide pagar para cobrar: bloqueo y denuncio","Pido que me paguen primero lo que llevo"], ok:1,
+  senal:"Dinero fácil por algo muy simple, y luego te piden pagar para «desbloquear».", regla:"Ningún trabajo de verdad te pide pagar para cobrar. Bloquea y denuncia."}
+];
+let i = 0, aciertos = 0;
+const $ = (s) => document.querySelector(s);
+function pintar(){
+  $("#progreso").style.width = (i / CASOS.length * 100) + "%";
+  if (i >= CASOS.length) return final();
+  const c = CASOS[i];
+  $("#juego").innerHTML = `
+    <div class="canal"><span class="avatar">${c.ini}</span><span>${c.canal}</span><span style="margin-left:auto">${i+1}/${CASOS.length}</span></div>
+    <div class="burbuja">${c.msg}</div>
+    <p class="pregunta">¿Qué haces?</p>
+    ${c.ops.map((o,k)=>[o,k]).sort(()=>Math.random()-0.5).map(([o,k])=>`<button class="op" data-k="${k}">${o}</button>`).join("")}
+    <div id="resp"></div>`;
+  document.querySelectorAll(".op").forEach(b => b.addEventListener("click", () => responder(+b.dataset.k)));
+}
+function responder(k){
+  const c = CASOS[i], bien = k === c.ok;
+  if (bien) aciertos++;
+  document.querySelectorAll(".op").forEach(b => { b.disabled = true; const n = +b.dataset.k;
+    if (n === c.ok) b.classList.add("bien"); else if (n === k) b.classList.add("mal"); });
+  $("#resp").innerHTML = `<div class="resp" style="border-color:var(${bien?"--verde":"--rojo"})">
+    <h3>${bien ? "✅ ¡No te la cuelan!" : "❌ Te la han colado"}</h3>
+    <p class="senal"><strong>La señal:</strong> ${c.senal}</p>
+    <p class="regla">La regla: ${c.regla}</p></div>
+    <button class="sig">${i+1 < CASOS.length ? "Siguiente mensaje →" : "Ver mi resultado"}</button>`;
+  $(".sig").addEventListener("click", () => { i++; pintar(); window.scrollTo({top:0,behavior:"smooth"}); });
+}
+function final(){
+  const frase = aciertos === 10 ? "Imposible colártela. Ahora protege a los tuyos." :
+    aciertos >= 7 ? "Muy bien, pero alguna se podría colar." : "Ojo: estas estafas funcionan porque parecen reales.";
+  $("#juego").innerHTML = `<div class="final">
+    <p class="sub">Tu resultado</p><div class="nota">${aciertos}/10</div><p>${frase}</p>
+    <a class="cta" href="https://payhip.com/b/OPqoG">📘 Descarga gratis la guía «Las 10 estafas más comunes en España»</a>
+    <button class="sec" id="compartir">📲 Pásaselo a tu familia</button>
+    <button class="sec" id="otra">↺ Volver a empezar</button></div>`;
+  $("#compartir").addEventListener("click", compartir);
+  $("#otra").addEventListener("click", () => { i = 0; aciertos = 0; pintar(); });
+}
+async function compartir(){
+  const datos = { title: "¿Te la cuelan?", text: `He sacado ${aciertos}/10 en el simulador de estafas de No te la cuelen. ¿Y tú?`, url: location.href };
+  try { if (navigator.share) { await navigator.share(datos); return; } } catch (e) { return; }
+  try { await navigator.clipboard.writeText(datos.text + " " + datos.url); $("#compartir").textContent = "✅ Enlace copiado"; } catch (e) {}
+}
+pintar();
+</script>
+</body>
+</html>
