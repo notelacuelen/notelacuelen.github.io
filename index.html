@@ -45,6 +45,8 @@ footer{color:var(--suave);font-size:13px;text-align:center;margin-top:22px}
 footer a{color:inherit}
 body.embed header .herr, body.embed footer{display:none}
 body.embed .credito{display:block}
+.suscribe{margin:22px 0 6px;padding:16px 16px 10px;border:2px solid #ffd60a;border-radius:16px;background:#181b22;text-align:left}.suscribe h2{margin:0 0 6px;font-size:20px}.suscribe p{margin:4px 0 10px}.suscribe .peq{font-size:13px;color:#a9b0bf}#email label,#email label *{color:#f2f4f8!important;font-size:14px!important;line-height:1.4!important}#email input[type=checkbox]{width:18px;height:18px;margin-right:8px;accent-color:#ffd60a}body.embed .suscribe{display:none}
+
 .credito{display:none;text-align:center;font-size:14px;margin:10px 0 4px;opacity:.85}
 .credito a{color:inherit}
 .guia-top{display:inline-block;margin:8px 0 4px;background:#ffd60a;color:#111;font-weight:700;text-decoration:none;border-radius:10px;padding:8px 12px;font-size:15px}
@@ -62,6 +64,10 @@ body.embed .credito{display:block}
   </header>
   <div class="barra" aria-hidden="true"><i id="progreso"></i></div>
   <section class="tarjeta" id="juego" aria-live="polite"></section>
+  <section class="suscribe" id="email"><h2>📩 Recibe la guía gratis en tu email</h2>
+    <p>Te mandamos «Las 10 estafas más comunes en España» y, de vez en cuando, avisos de las estafas nuevas que circulan. Sin spam: te das de baja con un clic.</p>
+    <div id="eo-hueco"></div>
+    <p class="peq">Confirmarás la suscripción desde tu correo. El envío lo gestiona EmailOctopus, nuestro proveedor de email. <a href="/privacidad">Privacidad</a></p></section>
   <footer>
     Mensajes inventados con fines de prevención (las webs .ejemplo no existen).<br>
     ¿Te ha pasado? Llama a tu banco, denuncia y pide ayuda gratis en el <strong>017</strong> (INCIBE).<br>
@@ -196,6 +202,14 @@ async function compartir(){
 try { if (localStorage.getItem("letra") === "1") document.body.classList.add("grande"); } catch (e) {}
 document.getElementById("letra").addEventListener("click", () => { const g = document.body.classList.toggle("grande"); try { localStorage.setItem("letra", g ? "1" : "0"); } catch (e) {} });
 nueva(); pintar();
+</script>
+<script>
+// Formulario de EmailOctopus (24-nov): no se carga en el modo insertado (?embed=1) para no meter terceros en webs ajenas
+if (!new URLSearchParams(location.search).has("embed")) {
+  const sc = document.createElement("script"); sc.async = true; sc.src = "https://eocampaign1.com/form/65cf0d36-e84c-11f1-bbb7-1f2c2e1b3eaf.js";
+  sc.setAttribute("data-form", "65cf0d36-e84c-11f1-bbb7-1f2c2e1b3eaf"); document.getElementById("eo-hueco").appendChild(sc);
+  let n = 0; const t = setInterval(() => { const i = document.querySelector("#email input[type=email],#email input[name*=mail]"); if (i) { i.placeholder = "Tu email"; clearInterval(t); } if (++n > 60) clearInterval(t); }, 250);
+}
 </script>
 </body>
 </html>
