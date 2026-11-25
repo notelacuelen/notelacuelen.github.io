@@ -174,10 +174,12 @@ function final(){
     aciertos >= 7 ? "Muy bien, pero alguna se podría colar." : "Ojo: estas estafas funcionan porque parecen reales.";
   $("#juego").innerHTML = `<div class="final">
     <p class="sub">Tu resultado</p><div class="nota">${aciertos}/10</div><p>${frase}</p>
-    <a class="cta" href="https://payhip.com/b/OPqoG">📘 Descarga gratis la guía «Las 10 estafas más comunes en España»</a>
+    <a class="cta" href="#email" id="ir-email">📩 Recibe gratis la guía «Las 10 estafas más comunes» en tu email</a>
     <button class="sec" id="compartir">📲 Pásaselo a tu familia (con tu resultado)</button>
     <button class="sec" id="otra">↺ Volver a empezar</button></div>`;
   $("#compartir").addEventListener("click", compartir);
+  if (document.body.classList.contains("embed")) { $("#ir-email").href = "https://payhip.com/b/OPqoG?ref=embed"; $("#ir-email").target = "_blank"; }
+  else $("#ir-email").addEventListener("click", e => { e.preventDefault(); document.getElementById("email").scrollIntoView({behavior:"smooth", block:"center"}); setTimeout(() => { const i = document.querySelector("#email input[type=email]"); if (i) i.focus(); }, 600); });
   $("#otra").addEventListener("click", () => { nueva(); pintar(); });
 }
 function imagen(){
