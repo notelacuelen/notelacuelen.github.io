@@ -64,8 +64,8 @@ body.embed .credito{display:block}
   </header>
   <div class="barra" aria-hidden="true"><i id="progreso"></i></div>
   <section class="tarjeta" id="juego" aria-live="polite"></section>
-  <section class="suscribe" id="email"><h2>📩 Recibe la guía gratis en tu email</h2>
-    <p>Te mandamos «Las 10 estafas más comunes en España» y, de vez en cuando, avisos de las estafas nuevas que circulan. Sin spam: te das de baja con un clic.</p>
+  <section class="suscribe" id="email"><h2>📩 Recibe gratis la checklist de 30 segundos + la guía de las 10 estafas</h2>
+    <p>Te mandamos la checklist «Antes de pagar, dar un código o pulsar un enlace», la guía «Las 10 estafas más comunes en España» y, de vez en cuando, avisos de las estafas nuevas que circulan. Sin spam: te das de baja con un clic.</p>
     <div id="eo-hueco"></div>
     <p class="peq">Confirmarás la suscripción desde tu correo. El envío lo gestiona EmailOctopus, nuestro proveedor de email. <a href="/privacidad">Privacidad</a></p></section>
   <footer>
@@ -174,7 +174,7 @@ function final(){
     aciertos >= 7 ? "Muy bien, pero alguna se podría colar." : "Ojo: estas estafas funcionan porque parecen reales.";
   $("#juego").innerHTML = `<div class="final">
     <p class="sub">Tu resultado</p><div class="nota">${aciertos}/10</div><p>${frase}</p>
-    <a class="cta" href="#email" id="ir-email">📩 Recibe gratis la guía «Las 10 estafas más comunes» en tu email</a>
+    <a class="cta" href="#email" id="ir-email">📩 Recibe gratis en tu email la checklist de 30 segundos y la guía de las 10 estafas</a>
     <button class="sec" id="compartir">📲 Pásaselo a tu familia (con tu resultado)</button>
     <button class="sec" id="otra">↺ Volver a empezar</button></div>`;
   $("#compartir").addEventListener("click", compartir);
